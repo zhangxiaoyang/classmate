@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block page %}
+<h1 class="form-signin-heading">修改班级</h1>
+<form action="#" method="POST" class="horizontal-form">{% csrf_token %}
+    <h3 class="form-section">班级信息</h3>
+    <!-- class info
+    ================================================== -->
+    <div class="row-fluid">
+        <!--/span-->
+        <div class="span6">
+            {% if form.slogon.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label">班级标语</label>
+                {{ form.slogon }}
+            </div>
+        </div>
+        <!--/span-->
+    </div>
+    <!-- class key
+    ================================================== -->
+    <h3 class="form-section">设置问题(回答正确方可进入, 多个答案请用`|`分隔)</h3>
+    <div class="row-fluid">
+        <div class="span6 ">
+            {% if form.quest1.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="firstName">问题 1(必填)</label>
+                {{ form.quest1 }}
+            </div>
+        </div>
+        <!--/span-->
+        <div class="span6">
+            {% if form.answer1.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="lastName">答案 1(必填)</label>
+                {{ form.answer1 }}
+            </div>
+        </div>
+        <!--/span-->
+    </div>
+    <div class="row-fluid">
+        <div class="span6 ">
+            {% if form.quest2.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="firstName">问题 2(必填)</label>
+                {{ form.quest2 }}
+            </div>
+        </div>
+        <!--/span-->
+        <div class="span6">
+            {% if form.answer2.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="lastName">答案 2(必填)</label>
+                {{ form.answer2 }}
+            </div>
+        </div>
+        <!--/span-->
+    </div>
+    <div class="row-fluid">
+        <div class="span6 ">
+            {% if form.quest3.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="firstName">问题 3(必填)</label>
+                {{ form.quest3 }}
+            </div>
+        </div>
+        <!--/span-->
+        <div class="span6">
+            {% if form.answer3.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label" for="lastName">答案 3(必填)</label>
+                {{ form.answer3 }}
+            </div>
+        </div>
+        <!--/span-->
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">确定</button>
+        <a type="button" href="/" class="btn">取消</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script type = "text/javascript" >
+$("#txtcollege").click(function(){
+    $("#dlgselect").modal('show');
+});
+$(".lblprovince").click(function(){
+    $.getJSON("/ajax/querycollege", {"proid":$(this).attr("id").replace(/[^0-9]/ig,"")},function(data){
+        $("#divcollege").empty();
+        var college = "<ul>";
+        $.each(data, function(k, v){
+            if(parseInt(v.link) == 16705) college += '<li class="span2"><a class="lblcollege" href="#" id="c'+v.link+'" style="color:red">'+v.name+"</a></li>";
+            else college += '<li class="span2"><a class="lblcollege" href="#" id="c'+v.link+'">'+v.name+"</a></li>";
+        });
+        college += "</ul>";
+        $("#divcollege").html(college);
+
+
+        $(".lblcollege").click(function(){
+            $("#dlgselect").modal('hide');
+            $("#txtcollege").val($(this).attr("id").replace(/[^0-9]/ig,"")+$(this).html());
+            $("#txtdepartment").attr("disabled", false);
+        });
+    });
+});
+$("#txtdepartment").click(function(){
+    $(".btn-group.pull-left").removeClass().addClass("btn-group open pull-left");
+    $.getJSON("/ajax/querydepartment", {"colid":$("#txtcollege").val().replace(/[^0-9]/ig,"")},function(data){
+        $(".dropdown-menu").empty();
+        var department = "";
+        $.each(data, function(k, v){
+            department += '<li><a class="lbldepartment" href="#" id="d'+v.link+'">'+v.name+'</a></li>'
+        });
+        $(".dropdown-menu").html(department);
+
+        $(".lbldepartment").click(function(){
+            $("#txtdepartment").val($(this).attr("id").replace(/[^0-9]/ig,"")+$(this).html());
+            $(".btn-group.open.pull-left").removeClass().addClass("btn-group pull-left");
+        });
+    });
+});
+</script>
+{% endblock %}

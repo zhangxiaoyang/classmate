@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+#startup{
+    display: block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    margin-bottom: 80px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 80px;
+    text-align: center;
+}
+#startupFont{
+    display: block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 80px;
+    font-weight: bold;
+    line-height: 100px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 10px;
+    text-align: center;
+    text-rendering: optimizelegibility;
+} 
+</style>
+{% endblock %}
+
+{% block page %}
+<!-- Background image
+================================================== -->
+<!-- <img id="banner" src="/static/img/banner3.jpg" style="width:100%;position:absolute;top:0;left:0;z-index:-10"> -->
+<!-- Input
+================================================== -->
+<div id="mask" class="row-fluid" style="background-color: rgba(0, 0, 0, 0.74902);">
+    <div id="startup" style="color:white;">
+        <div id="startupFont">Never say goodbye</div>
+        <h1>to your dear classmates.</h1>
+    </div>
+    <div class="text-center">
+        <div class="form-search">
+            <div class="control-group">
+                <input id="txtclassnum" type="text" class="input-medium span4" placeholder="请输入您的班号">
+                <a id="btnsearch" class="btn btn-primary">寻找您的班级</a>       
+            </div>
+        </div>
+    </div> 
+    <hr class="soften">
+    <div id="divresult"></div>
+</div> 
+{% endblock %}
+
+{% block js %}
+
+<script type = "text/javascript" >
+$("#txtclassnum").focus();
+$(document).ready(function(){
+    // $("footer").css("position","relative");
+    // $("footer").css("top","30%");
+    // $("footer").css("width","100%");
+
+    $("#banner").hide();
+    $("#mask").css("background-color", "white");
+    $("#startup").css("color", "black");
+});
+$("#txtclassnum").bind('keydown', function(e){
+    if (e.which == 13){
+        $("#btnsearch").click();
+    }
+});
+
+$("#btnsearch").click(function(){
+    var classnum = $("#txtclassnum").val();
+    $.getJSON("/ajax/queryclass", {"classnum":classnum},function(data){
+        $("#divresult").empty();
+        var label = "";
+        var count = 0;
+        $.each(data, function(k, v){
+            if(count % 4 == 0){
+                if(count == 0) label += '<div class="row-fluid">';
+                else label += '</div><div class="row-fluid">';
+            }
+            if(count == 0) label += '<a href="/createclass';
+            else label += '<a href="/enterclass/'+v.classid;
+
+            label += '" class="thumbnail span3" ';
+            label += ' style="height:80px;overflow:hidden;">';
+            label += '<h4>' + v.classnum + "</h4>";
+            label += "<p>" + v.detail;
+            label += "</p></a>";
+            count++;
+        });
+        label += "</div>";
+        $("#divresult").html(label);
+    });
+});
+</script>
+{% endblock %}
