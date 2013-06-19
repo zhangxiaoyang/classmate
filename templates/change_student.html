@@ -12,7 +12,7 @@
         <div class="row-fluid">
             <label class="control-label">输入位置关键词</label>
             <div class="controls">
-                <input type="text" id="txtsearch" class="span12">
+                <input type="text" id="txtsearch" class="span12" placeholder="示例: 北京 故宫 东门">
             </div>
         </div>
         <div class="row">
@@ -37,7 +37,7 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label">学号(必填)</label>
+                <label class="control-label">学号 <span class="badge badge-warning">必填</span></label>
                 {{ form.studentnum }}
             </div>
         </div>
@@ -48,7 +48,7 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label">姓名(必填)</label>
+                <label class="control-label">姓名 <span class="badge badge-warning">必填</span></label>
                 {{ form.name }}
             </div>
         </div>
@@ -109,7 +109,12 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label">生日(公历:g, 农历: n)</label>
+                <label class="control-label span2">生日
+                </label>
+                <ul>
+                  <li class="span2" style="list-style-type:none"><label class="radio"><input id="g" type="radio" name="rddate" value="公历" checked="checked">公历</label></li>
+                  <li class="span2" style="list-style-type:none"><label class="radio"><input id="n" type="radio" name="rddate" value="农历">农历</label></li>
+                </ul>
                 {{ form.birthday }}
             </div>
         </div>
@@ -120,14 +125,30 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label">当前位置(必填)</label>
+                <label class="control-label">当前位置 <span class="badge badge-warning">必填</span></label>
                 {{ form.position }}
             </div>
         </div>
         <!--/span-->
     </div>
-
-    
+    <div class="row-fluid">
+        <div class="span6 ">
+            {% if form.weixin.errors %}
+            <div class="control-group error">
+            {% else %}
+            <div class="control-group">
+            {% endif %}
+                <label class="control-label">微信OpenID(不是微信号)</label>
+                {{ form.weixin }}
+            </div>
+        </div>
+        <!--/span-->
+    </div>
+    <div class="row-fluid">       
+        <input id="btnupload" name="avatar" type="file">        
+        <img id="id_avatar" onerror='this.src="http://bcs.duapp.com/mediaavatar/error.jpg";' src="http://bcs.duapp.com/mediaavatar/{{studentid}}.jpg" style="height:70px;width:70px">
+        <!--/span-->
+    </div>
     <div class="text-center">
         <button type="submit" class="btn btn-primary">确定</button>
         <a type="button" href="/" class="btn">取消</a>
@@ -137,6 +158,57 @@
 
 {% block js %}
 <script type = "text/javascript" >
+// function showPreview(coords) {
+//     if (parseInt(coords.w) > 0) {
+//         //计算预览区域图片缩放的比例，通过计算显示区域的宽度(与高度)与剪裁的宽度(与高度)之比得到
+//         var rx = $("#preview_box").width() / coords.w;
+//         var ry = $("#preview_box").height() / coords.h;
+//         //通过比例值控制图片的样式与显示
+//         $("#crop_preview").css({
+//             width: Math.round(rx * $("#xuwanting").width()) + "px", //预览图片宽度为计算比例值与原图片宽度的乘积
+//             height: Math.round(rx * $("#xuwanting").height()) + "px", //预览图片高度为计算比例值与原图片高度的乘积
+//             marginLeft: "-" + Math.round(rx * coords.x) + "px",
+//             marginTop: "-" + Math.round(ry * coords.y) + "px"
+//         });
+//     }
+//}
+// 日期控件
+$("input:radio").click(function(){
+    var rddate = $(this).attr("id");
+    $("#id_birthday").val(rddate+$("#id_birthday").val().replace(/[^0-9]/ig,""));
+});
+$("#id_birthday").datepicker({
+    defaultDate:new Date(1990, 01, 01), 
+    'dateFormat':('yymmdd'),
+    onSelect: function(date) {
+        if($("#g").attr("checked") == "checked"){
+            $("#id_birthday").val("g"+$("#id_birthday").val().replace(/[^0-9]/ig,""));
+        }else if($("#n").attr("checked") == "checked"){
+            $("#id_birthday").val("n"+$("#id_birthday").val().replace(/[^0-9]/ig,""));
+        }
+    }
+});
+  
+$('#id_avatar').error(function(){
+    $(this).hide();
+});
+$('#btnupload').uploadify({　　
+    'formData' : { 'csrfmiddlewaretoken' : '{{ csrf_token }}'},
+    'swf': '/static/swf/uploadify.swf',
+    'uploader'  : '/ajax/upload/{{studentid}}/',
+    'buttonText': '上传头像',
+    'fileTypeExts': '*.jpg;*.bmp;*.png;*.gif',
+    'onUploadSuccess' : function (file, data, response) {
+      $('#id_avatar').show();
+      $("#id_avatar").attr('src', 'http://bcs.duapp.com/mediaavatar/{{studentid}}.jpg?timestemp='+new Date().getTime());
+        // $('#id_avatar').Jcrop({
+        //     onChange:showPreview,
+        //     onSelect:showPreview,
+        //     aspectRatio:1
+        // });
+    }
+});
+
 $("#id_position").click(function(){
     $("#dlgmap").modal('show');
 });

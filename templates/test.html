@@ -3,7 +3,6 @@
 {% block css %}
 <style type="text/css">
 #startup{
-    color: white;
     display: block;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
@@ -15,7 +14,6 @@
     text-align: center;
 }
 #startupFont{
-    color: white;
     display: block;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 80px;
@@ -32,11 +30,13 @@
 {% endblock %}
 
 {% block page %}
+<!-- Background image
+================================================== -->
+<!-- <img id="banner" src="/static/img/banner3.jpg" style="width:100%;position:absolute;top:0;left:0;z-index:-10"> -->
 <!-- Input
 ================================================== -->
-<img src="/static/img/base3.jpg" style="width:100%;position:absolute;top:0;left:0;z-index:-10">
-<div class="row-fluid" style="background-color: rgba(0, 0, 0, 0.74902);">
-    <div id="startup" style="top:0;">
+<div id="mask" class="row-fluid">
+    <div id="startup">
         <div id="startupFont">Never say goodbye</div>
         <h1>to your dear classmates.</h1>
     </div>
@@ -44,13 +44,12 @@
         <div class="form-search">
             <div class="control-group">
                 <input id="txtclassnum" type="text" class="input-medium span4" placeholder="请输入您的班号">
-                <a id="btnsearch" class="btn btn-primary">寻找您的班级</a>       
+                <a id="btnsearch" class="btn btn-primary">寻找您的班级</a> 
             </div>
         </div>
-        <hr class="soften"> 
-        <div id="divresult">
-        </div>
-    </div>
+    </div> 
+    <hr class="soften">
+    <div id="divresult"></div>
 </div> 
 {% endblock %}
 
@@ -78,7 +77,7 @@ $("#btnsearch").click(function(){
             if(count == 0) label += '<a href="/createclass';
             else label += '<a href="/enterclass/'+v.classid;
 
-            label += '" class="thumbnail span3"';
+            label += '" class="thumbnail span3" ';
             label += ' style="height:80px;overflow:hidden;">';
             label += '<h4>' + v.classnum + "</h4>";
             label += "<p>" + v.detail;

@@ -1,19 +1,13 @@
 {% extends "base.html" %}
-{% block css %}
-/*<style type="text/css">
-input{margin:0;height:16px;width:230px;}
-input{margin:0;height:16px;width:230px;}
-</style>*/
-{% endblock %}
 {% block page %}
 <!-- Mask layer
 ================================================== -->
 <div id="dlgprofile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3 id="dlgtitle">选择自己</h3>
+      <h3 id="dlgtitle">选择自己</h3>
     </div>
-    <div class="modal-body">
+       <div class="modal-body" style="height:200px">
         <!-- Create class
         ================================================== -->
         <div class="row">
@@ -30,7 +24,6 @@ input{margin:0;height:16px;width:230px;}
         <div class="row" id="divcollege"></div>
     </div>
     <div class="modal-footer">
-        <button class="btn" data-dismiss="modal">取消</button>
         <a href="/createstudent/{{ content.classid }}" class="btn pull-left">添加成员</a>
         <button id="btnchangestudent" class="btn pull-left">修改成员</button>
         <a href="/changeclass/{{ content.classid }}" class="btn pull-left">修改班级信息</a>
@@ -56,7 +49,6 @@ input{margin:0;height:16px;width:230px;}
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal">取消</button>
             <button type="submit" class="btn btn-primary">确定</button>
         </div>
     </div>   
@@ -64,8 +56,9 @@ input{margin:0;height:16px;width:230px;}
 
 <!-- Map
 ================================================== -->
-<div id="map" style="left:0;top:40px;bottom:0;position:absolute;width:100%;height: 100%;overflow:hidden;"></div>
-<div id="panel" class="model" style="right:0;top:40px;bottom:0;position:absolute;height:100%;width:300px;overflow:hidden;"></div>
+<div id="map" style="left:0;top:40px;bottom:0;z-index:-5;position:absolute;width:100%;height:100%;overflow:hidden;"></div>
+<div id="panel" style="right:0;top:40px;bottom:0;z-index:-5;position:absolute;height:100%;width:20%;overflow:auto;"></div>
+
 {% endblock %}
 
 {% block js %}
@@ -74,20 +67,31 @@ var map = new BMap.Map("map");// 创建地图实例
 var points = new Array();
 var markers = new Array();
 function init_map(){
+    //$("body").css("height", "100%");
+    //$("body").css("overflow", "hidden")    
+    $(".footer").hide();
+    $("#map").css("width", $(window).width()+"px").css("height", $(window).height()-40+"px");
+    $("#panel").css("width", "20%").css("height", $(window).height()-40+"px");
+    $(window).resize(function(){  
+        $("#map").css("width", $(window).width()+"px").css("height", $(window).height()-40+"px");
+        $("#panel").css("width", "20%").css("height", $(window).height()-40+"px");
+    });  
+
     map.addControl(new BMap.OverviewMapControl());//添加默认缩略地图控件
     // map.addControl(new BMap.NavigationControl());//添加默认缩放平移控件
     map.addControl(new BMap.ScaleControl());// 添加默认比例尺控件
-    map.addControl(new BMap.OverviewMapControl({isOpen:true, anchor: BMAP_ANCHOR_TOP_LEFT}));//右上角，打开
+    // map.addControl(new BMap.OverviewMapControl({isOpen:true, anchor: BMAP_ANCHOR_BOTTOM_LEFT}));//右上角，打开
     map.enableScrollWheelZoom();    //启用滚轮放大缩小，默认禁用
-    map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用    
-    map.centerAndZoom(new BMap.Point(116.404, 39.915), 10);
+    map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+    map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+    map.centerAndZoom(new BMap.Point(116.404, 39.915), 9);
 }
 function init_js(){
     $("#btnenter").click(function(){
         $("#dlgprofile").modal("hide");
         var sel = $('input:radio:checked').val();
-        if(typeof(sel) != "undefined")
-            $("#current").text($('input:radio:checked').val());
+        //if(typeof(sel) != "undefined")
+        //    $("#current").text($('input:radio:checked').val());
     });    
     $("input:radio").click(function(){
         var studentid = $(this).attr("id").replace(/[^0-9]/ig,"");
@@ -99,33 +103,21 @@ function init_js(){
         else window.location.href = $(this).attr("href");
     });
 }
-function addItem(num, name, qq, weibo, phone, mail, birth, addr, lng, lat){
+function addItem(studentid, num, name, qq, weibo, phone, mail, birth, addr, lng, lat, imgid){
     var content = "<div class='row-fluid'>";
     // 图标
-    var imgurl = '';
+    var imgurl = 'http://bcs.duapp.com/mediaavatar/'+imgid+'.jpg?timestemp='+new Date().getTime();
     var icon;
-    if (weibo != '暂无') {
-        imgurl = "http://tp1.sinaimg.cn/" + weibo + "/180/22843287561/1";
-        icon = new BMap.Icon(
-            imgurl,
-            new BMap.Size(70, 70), {
-            anchor: new BMap.Size(35, 70)
-        });
-    } else if (qq != '暂无') {
-        imgurl = "http://face7.qun.qq.com/cgi/svr/face/getface?&uin=" + qq;
-        icon = new BMap.Icon(
-            imgurl,
-            new BMap.Size(70, 70), {
-            anchor: new BMap.Size(35, 70)
-        });
-    }
-    else{
-        icon = new BMap.Icon(
-            'http://api.map.baidu.com/images/marker_red_sprite.png',
-            new BMap.Size(39, 25), {
-            anchor: new BMap.Size(10, 25)
-        });
-    }
+    icon = new BMap.Icon(
+        imgurl,
+        new BMap.Size(70, 70), {
+        anchor: new BMap.Size(35, 70)
+        });/*
+    icon = new BMap.Icon(
+       'http://api.map.baidu.com/images/marker_red_sprite.png',
+        new BMap.Size(39, 25), {
+        anchor: new BMap.Size(10, 25)
+    });*/
     if (imgurl != '') {
         content += "<img style='float:right;margin:4px;width:70px;height:70px' id='img" + num + "' src='" + imgurl + "'/>";
     }
@@ -142,7 +134,7 @@ function addItem(num, name, qq, weibo, phone, mail, birth, addr, lng, lat){
     content += '<li>地址</li>';
     content += '<label>'+addr+'</label></div>';
     // 添加点
-    var point = new BMap.Point(Number(lng), Number(lat));
+    var point = new BMap.Point(Number(lng)+0.001*Math.random(), Number(lat)-0.001*Math.random());
     points.push(point);
 
     // 创建信息窗口对象
@@ -158,14 +150,20 @@ function addItem(num, name, qq, weibo, phone, mail, birth, addr, lng, lat){
             BMAPLIB_TAB_FROM_HERE //从这里出发
         ]
     });
-
+    map.addEventListener("dragging", function(){
+        searchInfoWindow.hide();
+    });
     // 创建标注
-    var marker = new BMap.Marker(point, {icon: icon});
-    markers.push(marker);
-    map.addOverlay(marker);// 将标注添加到地图
+    var marker = new BMap.Marker(point, {icon: icon, title:name + " " + num});
+    //map.addOverlay(marker);// 将标注添加到地图
     marker.addEventListener("click", function(e){
         searchInfoWindow.open(marker);
-    });
+        $('.BMapLib_search_text, .BMapLib_trans_text').css('margin', '0px');
+        $('.BMapLib_search_text, .BMapLib_trans_text').css('padding', '0px');
+        $('.BMapLib_search_text, .BMapLib_trans_text').css('height', '26px');
+    });     
+    //marker.enableDragging(); 
+    markers.push(marker);
 }
 $(document).ready(function(){
     init_map();
@@ -176,11 +174,31 @@ $(document).ready(function(){
         $("#dlgvalidate").modal("hide");
         $("#dlgprofile").modal("show");
         {% for k, v in stu.items %}
-            addItem('{{v.studentnum}}', '{{v.name}}', '{{v.qq}}', '{{v.weibo}}', '{{v.phone}}', '{{v.mail}}', '{{v.birth}}', '{{v.addr}}', '{{v.lng}}', '{{v.lat}}');
+          addItem('{{k}}','{{v.studentnum}}', '{{v.name}}', '{{v.qq}}', '{{v.weibo}}', '{{v.phone}}', '{{v.mail}}', '{{v.birth}}', '{{v.addr}}', '{{v.lng}}', '{{v.lat}}', '{{v.imgid}}');
         {% endfor %}
         var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers});
         map.setViewport(points);
-    {% endif %}    
+        map.addEventListener("mousemove", function(){
+            for(var i = 0, cluster; cluster = markerClusterer._clusters[i]; i++){
+                (function (x) { 
+                var content = "";var content1="";
+                for(var j = 0, marker; marker = cluster._markers[j]; j++){
+                  content += '<div class="row-fluid">';
+                  content += '<div class="span2"><img style="width:25px;height:25px" src="' + marker.getIcon().imageUrl + '"></div>';
+                  content += '<div class="span10">' + marker.getTitle() + '</div></div>';
+                }
+                var infowindow = new BMap.InfoWindow(content);
+                cluster._clusterMarker.addEventListener("mouseover", function(e){
+                     map.openInfoWindow(infowindow, e.point);        
+                });    
+                map.addEventListener("dragging", function(){
+                    map.closeInfoWindow();
+                });    
+                })(i);  
+            }
+        });
+         // 头像加边框 $(".BMap_Marker BMap_noprint")
+    {% endif %}
 });
 </script>
 {% endblock %}

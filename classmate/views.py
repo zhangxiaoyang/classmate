@@ -11,8 +11,22 @@ import sys
 import re
 from models import *
 from forms import *
-
+import json
+from bae.core import const
+from bae.api import bcs
+#import urllib2
 def index(request):
+    classes = []
+    for i in Class.objects.all():
+        classes.append('%s/%s' % (i.department.college.colname, i.classnum+'班'))
+    return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
+def bye(request):
+    logout(request)    
+    classes = []
+    for i in Class.objects.all():
+        classes.append('%s/%s' % (i.department.college.colname, i.classnum+'班'))
+    return render_to_response('index.html', locals())
+def weixin(request):
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
 def test(request):
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
@@ -20,6 +34,8 @@ def test(request):
 Class
 '''
 def create_class(request):
+    try: studentid = [i for i in Student.objects.all()][-1].studentid+1
+    except: studentid = 1
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -45,7 +61,8 @@ def create_class(request):
                 weibo=form.cleaned_data['weibo'],
                 mail=form.cleaned_data['mail'],
                 position=form.cleaned_data['position'],
-                birthday=form.cleaned_data['birthday'])
+                birthday=form.cleaned_data['birthday'],
+                weixin=form.cleaned_data['weixin'])
             s.save()  
             return HttpResponseRedirect('/')
     else: form = RegisterForm()
@@ -83,8 +100,52 @@ def enter_class(request, classid):
     content = {'validate':True, 'profile':False, 'classid':classid}
     quest   = {}
     stu     = {}
-    if request.method == 'POST':
-        print request.POST
+    HOST = const.BCS_ADDR
+    AK = const.ACCESS_KEY
+    SK = const.SECRET_KEY
+    bname = 'mediaavatar'
+    baebcs = bcs.BaeBCS(HOST, AK, SK)
+    e, d = baebcs.list_objects(bname)
+    imgids = []
+    d = str(d).replace('\'', '\"')
+    d = json.loads(d)
+    for i in d:
+        try:
+            imgid = int(i.replace('.jpg','').replace('/',''))
+            imgids.append(imgid)
+        except:pass
+            
+    if str(classid) == str(request.user):
+        content.update({'validate':False, 'profile':True})
+
+        for i in Student.objects.filter(classs=Class(classid=classid)):
+            try:
+                addr = i.position.split('(')[0]
+                lng  = i.position.split('(')[1].split(',')[0]
+                lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+            except:
+                addr = '暂无'
+                lng = '10.0'
+                lat = '10.0'
+            if i.birthday == '':birth = '暂无'
+            elif i.birthday[0] == 'g':birth = i.birthday[1:]+'(公历)'
+            else:birth = i.birthday[1:]+'(农历)'
+
+            if i.name == '': i.name = '暂无'
+            if i.qq == '': i.qq = '暂无'
+            if i.weibo == '': i.weibo = '暂无'
+            if i.phone == '': i.phone = '暂无'
+            if i.mail == '': i.mail = '暂无'
+            if i.weixin == '': i.weixin = '暂无'
+            if i.studentid in imgids:
+                imgid = str(i.studentid)
+            else:imgid = 'error'
+            stu.update({str(i.studentid):{'studentnum':i.studentnum,\
+                'name':i.name, 'qq':i.qq,\
+                'weibo':i.weibo, 'phone':i.phone, 'mail':i.mail,\
+                'birth':birth, 'addr':addr, 'lng':lng, 'lat':lat, 'imgid':imgid, 'weixin':weixin}})
+
+    elif request.method == 'POST':
         form = ValidateForm(request.POST)
         if form.is_valid():
             answer1 = form.cleaned_data['answer1']
@@ -96,9 +157,14 @@ def enter_class(request, classid):
                 answer3.encode('utf8') in c.answer3.split('|'):
                 content.update({'validate':False, 'profile':True})
                 for i in Student.objects.filter(classs=Class(classid=classid)):
-                    addr = i.position.split('(')[0]
-                    lng  = i.position.split('(')[1].split(',')[0]
-                    lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+                    try:
+                        addr = i.position.split('(')[0]
+                        lng  = i.position.split('(')[1].split(',')[0]
+                        lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+                    except:
+                        addr = '暂无'
+                        lng = '10.0'
+                        lat = '10.0'
                     
                     if i.birthday == '':birth = '暂无'
                     elif i.birthday[0] == 'g':birth = i.birthday[1:]+'(公历)'
@@ -109,30 +175,34 @@ def enter_class(request, classid):
                     if i.weibo == '': i.weibo = '暂无'
                     if i.phone == '': i.phone = '暂无'
                     if i.mail == '': i.mail = '暂无'
+                    if i.studentid in imgids:
+                        imgid = str(i.studentid)
+                    else:imgid = 'error'
                     stu.update({str(i.studentid):{'studentnum':i.studentnum,\
                         'name':i.name, 'qq':i.qq,\
                         'weibo':i.weibo, 'phone':i.phone, 'mail':i.mail,\
-                        'birth':birth, 'addr':addr, 'lng':lng, 'lat':lat}})
+                        'birth':birth, 'addr':addr, 'lng':lng, 'lat':lat, 'imgid':imgid, 'weixin':weixin}})
                 user =  authenticate(username=str(classid))
                 login(request, user)   
     c = [i for i in Class.objects.filter(classid=classid)][0]
     quest.update({'answer1':[c.quest1,'']})
     quest.update({'answer2':[c.quest2,'']})
-    quest.update({'answer3':[c.quest3,'']})   
+    quest.update({'answer3':[c.quest3,'']})
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals(), context_instance=RequestContext(request))
 
 '''
 Student
 '''
 @login_required(login_url='/')
-def create_student(request, classid):    
+def create_student(request, classid):
+    studentid = [i for i in Student.objects.all()][-1].studentid+1
     if str(classid) != str(request.user):
         return HttpResponseRedirect('/')
+    classid = int(classid)
     if request.method == 'POST':
-        form = StudentForm(request.POST)
+        form = StudentForm(request.POST, classid=classid)
         if form.is_valid():
-            classid = int(classid)
-            s = Student(studentnum=form.cleaned_data['studentnum'],
+            s = Student(studentid=studentid,studentnum=form.cleaned_data['studentnum'],
                 classs=Class(classid=classid),
                 name=form.cleaned_data['name'],
                 phone=form.cleaned_data['phone'],
@@ -140,18 +210,21 @@ def create_student(request, classid):
                 weibo=form.cleaned_data['weibo'],
                 mail=form.cleaned_data['mail'],
                 position=form.cleaned_data['position'],
-                birthday=form.cleaned_data['birthday'])
+                birthday=form.cleaned_data['birthday'],
+                weixin=form.cleaned_data['weixin'])
             s.save()  
-            return HttpResponseRedirect('/')
-    else: form = StudentForm()
+            return HttpResponseRedirect('/enterclass/'+str(classid))
+    else: form = StudentForm(classid=classid)
     
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals(), context_instance=RequestContext(request))
 @login_required(login_url='/')
 def change_student(request, studentid):
+    classid = [i for i in Student.objects.filter(studentid=studentid)][-1].classs
+    classid = int(classid.classid)
     if str(classid) != str(request.user):
         return HttpResponseRedirect('/')
     if request.method == 'POST':
-        form = StudentForm(request.POST)
+        form = StudentForm(request.POST, classid=None)
         if form.is_valid():
             s = Student.objects.filter(studentid=studentid).update(
                 studentnum=form.cleaned_data['studentnum'],
@@ -161,12 +234,13 @@ def change_student(request, studentid):
                 weibo=form.cleaned_data['weibo'],
                 mail=form.cleaned_data['mail'],
                 position=form.cleaned_data['position'],
-                birthday=form.cleaned_data['birthday'])
-            return HttpResponseRedirect('/')
+                birthday=form.cleaned_data['birthday'],
+                weixin=form.cleaned_data['weixin'])
+            return HttpResponseRedirect('/enterclass/'+str(classid))
     else:
         s = [i for i in Student.objects.filter(studentid=studentid)][0]
         form = StudentForm({'studentnum':s.studentnum,\
                 'name':s.name, 'qq':s.qq, 'weibo':s.weibo,\
                 'phone':s.phone, 'mail':s.mail, 'birthday':s.birthday,
-                'position':s.position})
+                'position':s.position,'weixin':s.weixin}, classid=None)
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals(), context_instance=RequestContext(request))

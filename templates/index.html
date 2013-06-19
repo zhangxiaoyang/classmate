@@ -2,54 +2,36 @@
 
 {% block css %}
 <style type="text/css">
-#startup{
-    display: block;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 20px;
-    margin-bottom: 80px;
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 80px;
-    text-align: center;
-}
-#startupFont{
-    display: block;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 80px;
-    font-weight: bold;
-    line-height: 100px;
-    margin-bottom: 10px;
-    margin-left: 0px;
-    margin-right: 0px;
-    margin-top: 10px;
-    text-align: center;
-    text-rendering: optimizelegibility;
-} 
 </style>
 {% endblock %}
 
 {% block page %}
-<!-- Background image
-================================================== -->
-<!-- <img id="banner" src="/static/img/banner3.jpg" style="width:100%;position:absolute;top:0;left:0;z-index:-10"> -->
-<!-- Input
-================================================== -->
-<div id="mask" class="row-fluid" style="background-color: rgba(0, 0, 0, 0.74902);">
-    <div id="startup" style="color:white;">
-        <div id="startupFont">Never say goodbye</div>
-        <h1>to your dear classmates.</h1>
-    </div>
-    <div class="text-center">
+<div id="mask" class="row-fluid">
+    <!-- Banner
+    ================================================== -->
+  <div style="left:20%;top:200px;z-index:-5;position:absolute;color:#ffffff;">所有的嬉笑怒骂都将变成回忆……<br/>毕业季，留住回忆，延续感动</div>
+   <div style="width:100%;height:350px;left:0;top:40px;z-index:-10;position:absolute;background-color:#0c5da5;display:block;overflow:hidden;">&nbsp;</div>
+   <div style="width:100%;height:68px;left:0;top:40px;z-index:-10;position:absolute;background-color:#ffc200;display:block;overflow:hidden;">&nbsp;</div>
+   <img src="http://bcs.duapp.com/mediaavatar/banner.jpg" style="width:200px;left:0;top:40px;z-index:-8;position:absolute;">
+  
+   <!-- Input
+   ================================================== -->
+   <div class="row" style="height:250px">&nbsp;</div>
+   <div class="text-center">
         <div class="form-search">
             <div class="control-group">
-                <input id="txtclassnum" type="text" class="input-medium span4" placeholder="请输入您的班号">
-                <a id="btnsearch" class="btn btn-primary">寻找您的班级</a>       
+                <input id="txtclassnum" type="text" class="input-medium" placeholder="请输入您的班号" style="width:40%">
+                <a id="btnsearch" class="btn btn-primary">寻找班级</a> <a href="/createclass" style="color:white">创建班级</a>
             </div>
         </div>
-    </div> 
+    </div>
     <hr class="soften">
-    <div id="divresult"></div>
+    <div id="divresult">
+      他们已经加入：
+      {% for i in classes %}
+      {{i}}&nbsp;&nbsp;
+      {% endfor %}
+    </div>
 </div> 
 {% endblock %}
 
@@ -57,15 +39,6 @@
 
 <script type = "text/javascript" >
 $("#txtclassnum").focus();
-$(document).ready(function(){
-    // $("footer").css("position","relative");
-    // $("footer").css("top","30%");
-    // $("footer").css("width","100%");
-
-    $("#banner").hide();
-    $("#mask").css("background-color", "white");
-    $("#startup").css("color", "black");
-});
 $("#txtclassnum").bind('keydown', function(e){
     if (e.which == 13){
         $("#btnsearch").click();

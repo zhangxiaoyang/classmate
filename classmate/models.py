@@ -41,3 +41,4 @@ class Student(models.Model):
     mail      = models.EmailField()
     position  = models.TextField()
     birthday  = models.CharField(max_length=9)
+    weixin    = models.CharField(max_length=40)

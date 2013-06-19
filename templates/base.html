@@ -12,25 +12,29 @@ Purchase: http://themeforest.net/item/conquer-responsive-admin-dashboard-templat
 <!-- BEGIN HEAD -->
 <head>
 	<meta charset="utf-8" />
-	<title>Classmate</title>
+	<title>大学同窗 | 留住回忆 延续感动</title>
 	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
-	<meta content="" name="description" />
-	<meta content="" name="author" />
+	<meta content="" name="提供大学班级同学联系方式、地理位置等信息的查询服务。" />
+	<meta content="" name="zhangxiaoyang" />
+    <meta name="baidu-site-verification" content="kEnQHqPFbn" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" /> 
 	<!-- BEGIN GLOBAL MANDATORY STYLES -->
 	<link href="/static/css/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/static/css/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
-    <link href="/static/css/bootstrap/css/docs.css" rel="stylesheet" />    
+    <link href="/static/css/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" /> 
+    <link href="/static/css/bootstrap/css/docs.css" rel="stylesheet" />  
+    <link href="/static/css/uploadify.css" rel="stylesheet" />     
+    <link href="/static/css/jquery.Jcrop.min.css" rel="stylesheet" />  
     <link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.css" />
+    <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" />    
     {% block css %}{% endblock %}
 	<!-- END PAGE LEVEL STYLES -->
 </head>
 <!-- END HEAD -->
 <!-- BEGIN BODY -->
-<body data-spy="scroll" data-target=".bs-docs-sidebar" screen_capture_injected="true" style="height:100%;width:100%;margin:auto 0px;">
-
+<body screen_capture_injected="true">
     <!-- Navbar
     ================================================== -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
                 <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -38,18 +42,28 @@ Purchase: http://themeforest.net/item/conquer-responsive-admin-dashboard-templat
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="brand pull-left" href="/index">Classmate</a>
+                <a class="brand" style="float:left" href="/index">大学同窗</a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
                         <li class="active">
-                            <a href="/index">Home</a>
+                            <a href="/index">主页</a>
+                        </li>
+                        <li class="active">
+                            <a href="/weixin">手机版</a>
                         </li>
                     </ul>
                 </div>
                 <div class="nav-collapse collapse pull-right">
                     <ul class="nav">
-                        <li class="active">
-                            <a href="#" id="current"></a>
+                        <li class="dropdown-toggle">
+                            {% if request.user.pk %}
+                            <a href="#" id="current" class="dropdown-toggle" data-toggle="dropdown" style="display:none;">{{request.user.pk}}</a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/enterclass/{{request.user.pk}}">我的班级</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/bye">退出登录</a></li>
+                            </ul>
+                            {% endif %}
                         </li>
                     </ul>
                 </div>
@@ -57,9 +71,6 @@ Purchase: http://themeforest.net/item/conquer-responsive-admin-dashboard-templat
         </div>
     </div>
 
-    <!-- blank
-    ================================================== -->
-    <div style="height:40px;"></div>
     <!-- container
     ================================================== -->
     <div class="container">
@@ -69,17 +80,34 @@ Purchase: http://themeforest.net/item/conquer-responsive-admin-dashboard-templat
     ================================================== -->
     <footer class="footer">
         <div class="text-center">
-            <p>Designed and built by <a href="http://weibo.com/1704839092" target="_blank">zhangxiaoyang</a>.</p>
+            <p>Designed and built by <a href="http://weibo.com/1704839092" target="_blank">zhangxiaoyang</a>
+                <a href="http://weibo.com/316860006" target="_blank">wangxiaomo</a>.
+                <a id="btnsource" href="#">项目开源</a>
+                <script src="http://s4.cnzz.com/stat.php?id=5435844&web_id=5435844&show=pic1" language="JavaScript"></script>
+            </p>
         </div>
     </footer>
     <!-- BEGIN PLUGINS -->
     <script src="/static/js/jquery-1.8.3.min.js" type="text/javascript"></script>		
-    <script src="/static/css/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/static/css/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>    
+    <script type="text/javascript" src="/static/js/jquery.uploadify.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=D8d3f29f743c4526cd4408788c39640b"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>  
+
     <!-- END PLUGINS -->
+    <script type = "text/javascript" >
+    $("#btnsource").click(function(){
+      if(window.confirm('您可以使用代码中的任何语句, 请注明出处, 严禁用于商业用途, 确定吗?')){
+          window.open("https://github.com/zhangxiaoyang/classmate", "_blank"); 
+      }
+    });
+    $.getJSON("/ajax/querylogin", {"classid":$("#current").text()},function(data){
+        $("#current").text(data).show();
+    });
+    </script>
     {% block js %}{% endblock %}
 </body>
 <!-- END BODY -->

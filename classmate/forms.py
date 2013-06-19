@@ -4,10 +4,10 @@ from models import *
 import re
 
 class RegisterForm(forms.Form):
-    college    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-    department = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    college    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
+    department = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
     classnum   = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~20个数字'}),required=True, min_length=4, max_length=20)
-    year       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'2012'}),required=True)
+    year       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 2012'}),required=True)
     slogon  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=False)
 
     studentnum  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~20个数字'}),required=True, min_length=4, max_length=20)
@@ -16,13 +16,14 @@ class RegisterForm(forms.Form):
     weibo       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'7~20个数字'}),min_length=7, max_length=20,required=False)
     mail        = forms.EmailField(widget=forms.TextInput(attrs={'class':'span12'}),required=False)
     phone       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~12个数字'}),min_length=4, max_length=12,required=False)
-    birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'g19880218'}),required=False)
-    position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-
-    quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=False)
+    position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
+    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'微信OpenID, 关注大学同窗并发送消息即可获得(有秘密功能哦)'}),min_length=7, max_length=35,required=False)
+    
+    quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 我们班的美女?'}),required=True)
     quest2  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     quest3  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲?'}),required=True)
     answer2 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     answer3 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     def clean_classnum(self):
@@ -82,7 +83,6 @@ class RegisterForm(forms.Form):
             int(weibo)
             return weibo
         except:raise forms.ValidationError("weibo field error!")
-
 class ValidateForm(forms.Form):
     answer1 = forms.CharField(required=True)
     answer2 = forms.CharField(required=True)
@@ -117,14 +117,26 @@ class StudentForm(forms.Form):
     weibo       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'7~20个数字'}),min_length=7, max_length=20,required=False)
     mail        = forms.EmailField(widget=forms.TextInput(attrs={'class':'span12'}),required=False)
     phone       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~12个数字'}),min_length=4, max_length=12,required=False)
-    birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'g19880218'}),required=False)
-    position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=False)
+    position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
+    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'微信OpenID, 关注大学同窗并发送消息即可获得(有秘密功能哦)'}),min_length=7, max_length=35,required=False)
+        
+    def __init__(self, *args, **kwargs):
+        self.classid = kwargs.pop('classid')
+        super(StudentForm, self).__init__(*args, **kwargs)
+    
     def clean_studentnum(self):
         try:
             studentnum = self.cleaned_data['studentnum']
             int(studentnum)
+        except:
+            raise forms.ValidationError("studentnum field error!")  
+        if self.classid == None:
             return studentnum
-        except:raise forms.ValidationError("studentnum field error!")
+        if 0 != len(Student.objects.filter(studentnum=studentnum, classs=Class(classid=self.classid))):
+            raise forms.ValidationError("该学号已经被注册")
+        else: return studentnum
+        
     def clean_birthday(self):
         try:
             birthday = self.cleaned_data['birthday']
@@ -159,10 +171,10 @@ class StudentForm(forms.Form):
 
 class ClassForm(forms.Form):
     slogon  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=False)
-    quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 我们班的美女?'}),required=True)
     quest2  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     quest3  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
+    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲?'}),required=True)
     answer2 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     answer3 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
   
