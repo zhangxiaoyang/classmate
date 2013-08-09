@@ -18,7 +18,7 @@ from bae.api import bcs
 def index(request):
     classes = []
     for i in Class.objects.all():
-        classes.append('%s/%s' % (i.department.college.colname, i.classnum+'班'))
+        classes.append('%s/%s' % (i.department.college.colname, i.classnum))
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
 def bye(request):
     logout(request)    
@@ -27,6 +27,10 @@ def bye(request):
         classes.append('%s/%s' % (i.department.college.colname, i.classnum+'班'))
     return render_to_response('index.html', locals())
 def weixin(request):
+    return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
+def album(request):
+    return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
+def sms(request):
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
 def test(request):
     return render_to_response(sys._getframe().f_code.co_name + '.html', locals())
@@ -120,9 +124,11 @@ def enter_class(request, classid):
 
         for i in Student.objects.filter(classs=Class(classid=classid)):
             try:
-                addr = i.position.split('(')[0]
-                lng  = i.position.split('(')[1].split(',')[0]
-                lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+                pt = re.compile(r'\(\d+\.\d+,\d+\.\d+\)')
+                s = pt.findall(i.position)[-1].replace('(','').replace(')','')
+                lng = s.split(',')[0]
+                lat = s.split(',')[1]
+                addr = i.position.replace('('+lng+','+lat+')', '')
             except:
                 addr = '暂无'
                 lng = '10.0'
@@ -158,14 +164,16 @@ def enter_class(request, classid):
                 content.update({'validate':False, 'profile':True})
                 for i in Student.objects.filter(classs=Class(classid=classid)):
                     try:
-                        addr = i.position.split('(')[0]
-                        lng  = i.position.split('(')[1].split(',')[0]
-                        lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+                        pt = re.compile(r'\(\d+\.\d+,\d+\.\d+\)')
+                        s = pt.findall(i.position)[-1].replace('(','').replace(')','')
+                        lng = s.split(',')[0]
+                        lat = s.split(',')[1]
+                        addr = i.position.replace('('+lng+','+lat+')', '')
                     except:
                         addr = '暂无'
                         lng = '10.0'
                         lat = '10.0'
-                    
+                        
                     if i.birthday == '':birth = '暂无'
                     elif i.birthday[0] == 'g':birth = i.birthday[1:]+'(公历)'
                     else:birth = i.birthday[1:]+'(农历)'

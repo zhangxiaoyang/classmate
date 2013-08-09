@@ -1,6 +1,36 @@
 {% extends "base.html" %}
 
 {% block page %}
+<!-- Weixin help
+================================================== -->
+<div id="dlgweixin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id="dlgtitle">使用帮助</h3>
+    </div>
+    <div class="modal-body">
+        <div class="row-fluid">
+            <div class="span4"></div>
+            <img class="span4" src="http://bcs.duapp.com/mediaavatar/code.jpg"> 
+            <div class="span4"></div>
+        </div>
+        <div class="row-fluid">
+            <ul style="list-style-type:none;text-indent: 2em;">
+                <li>执行完以下操作后，您可以使用微信随时随地更新、查询信息~</li><br/>
+                <li>Step 1. 用微信扫描以上二维码</li>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;（或者用微信添加公共平台: daxuetongchang）</li>
+                <li>Step 2. 关注成功后，发送任意消息到大学同窗</li>
+                <li>Step 3. 大学同窗会回复您的OpenID（有字、数字、乱七八糟的字符）</li>
+                <li>Step 4. 把OpenID填在这里即可</li>
+                <li>Step 5. 提交本页面后, 登录手机微信, 发送help到大学同窗了解手机指令</li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal">看明白了</button>
+    </div>
+</div>
+
 <!-- Mask layer
 ================================================== -->
 <div id="dlgselect" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -239,7 +269,7 @@
             {% else %}
             <div class="control-group">
             {% endif %}
-                <label class="control-label">微信OpenID(不是微信号)</label>
+                <label class="control-label">微信OpenID<a href="#" id="btnweixin">不是微信号，点我一下看看究竟</a></label>
                 {{ form.weixin }}
             </div>
         </div>
@@ -373,6 +403,9 @@ $('#btnupload').uploadify({　　
   
 $("#id_college").bind("click keyup keypress", function(){
     $("#dlgselect").modal('show');
+});
+$("#btnweixin").click(function(){
+    $("#dlgweixin").modal('show');
 });
 $(".lblprovince").click(function(){
     $.getJSON("/ajax/querycollege", {"proid":$(this).attr("id").replace(/[^0-9]/ig,"")},function(data){

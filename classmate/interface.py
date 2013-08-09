@@ -84,41 +84,50 @@ def parseText(msg):
     querystr = msg.get('Content').strip()
     res = ''    
     openid = msg.get('FromUserName')
-    classs = [i for i in Student.objects.filter(weixin=openid)][0].classs
-    
+    classs = []
+    for i in Student.objects.filter(weixin=openid):
+        classs.append(i.classs)
+            
     if querystr in ['帮助', 'help']:
         res = '= 小窗为您服务 =\n'
-        res += '- 发送「同学姓名」查看其信息\n'
+        res += '- 发送 同学姓名 查看其信息\n'
         res += '- 发送「所有/list」查看所有同学姓名\n'
-        res += '- 发送「地理位置」修改当前位置\n'
+        res += '- 插入 地理位置 修改当前位置\n'
         res += '- 发送「帮助/help」查看帮助\n'
         res += '- 你知道吗, 我还可以和你聊天呢, 随意调戏不客气~'
         return res
-    elif querystr.lower() in ['所有', 'list']:
-        for i in Student.objects.filter(classs=classs):
-            res += i.name + '\n'
+    elif querystr in ['所有', 'list']:
+        for c in classs:
+            res += '= ' + c.classnum + ' =\n'
+            for i in Student.objects.filter(classs = c):
+                res += i.name + '\n'
         return res
       
     # 返回查询的同学
     empty = True
-    for i in Student.objects.filter(classs=classs, name=querystr):
-        #lng  = i.position.split('(')[1].split(',')[0]
-        #lat  = i.position.split('(')[1].split(',')[1].replace(')','')
-        res += '[姓名]' + i.name + '\n' 
-        res += '[学号]' + i.studentnum + '\n'
-        if i.birthday != '':
-            birth = ''
-            if i.birthday[0] == 'g':birth = i.birthday[1:]+'(公历)'
-            else:birth = i.birthday[1:]+'(农历)'
-            res += '[破壳日]' + birth + '\n'
-        addr = i.position.split('(')[0]
-        res += '[地理位置]' + addr + '\n'
-        if i.phone != '': res += '[联系方式]' + i.phone + '\n'
-        if i.qq != '': res += '[QQ]' + i.qq + '\n'
-        if i.weibo != '': res += '[微博]' + i.weibo + '\n'
-        if i.mail != '': res += '[E-mail]' + i.mail + '\n'
-        res += '\n'
-        empty = False
+    for c in classs:
+        flag = True
+        for i in Student.objects.filter(classs = c, name = querystr):
+            if flag:
+                flag = False
+                res += '= ' + c.classnum + ' =\n'
+            #lng  = i.position.split('(')[1].split(',')[0]
+            #lat  = i.position.split('(')[1].split(',')[1].replace(')','')
+            res += '[姓名]' + i.name + '\n' 
+            res += '[学号]' + i.studentnum + '\n'
+            if i.birthday != '':
+                birth = ''
+                if i.birthday[0] == 'g':birth = i.birthday[1:]+'(公历)'
+                else:birth = i.birthday[1:]+'(农历)'
+                res += '[破壳日]' + birth + '\n'
+            addr = i.position.split('(')[0]
+            res += '[地理位置]' + addr + '\n'
+            if i.phone != '': res += '[联系方式]' + i.phone + '\n'
+            if i.qq != '': res += '[QQ]' + i.qq + '\n'
+            if i.weibo != '': res += '[微博]' + i.weibo + '\n'
+            if i.mail != '': res += '[E-mail]' + i.mail + '\n'
+            res += '\n'
+            empty = False
     if empty: res = getAutoResponse(querystr)
     return res
 
@@ -130,7 +139,7 @@ def responseMsg(request):
     msgtype = str(msg.get('MsgType'))
     
     if len([i for i in Student.objects.filter(weixin=openid)]) == 0:
-        res = '您的OpenID: ' + openid + '\n小窗等不及了, 快加入我们吧: http://tongchuang.duapp.com'
+        res = '您的OpenID: ' + openid + '\n小窗等不及了, 快加入我们吧!\n到http://tongchuang.duapp.com注册或加入班级并添加自己的信息~'
     elif 'voice' == msgtype:
         res = '声音啥的小窗真的听不懂呀~'
     elif 'image' == msgtype:

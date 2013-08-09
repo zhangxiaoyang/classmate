@@ -18,12 +18,12 @@ class RegisterForm(forms.Form):
     phone       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~12个数字'}),min_length=4, max_length=12,required=False)
     birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=False)
     position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
-    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'微信OpenID, 关注大学同窗并发送消息即可获得(有秘密功能哦)'}),min_length=7, max_length=35,required=False)
+    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'OpenID不是微信号, 是一串杂七杂八的字符'}),min_length=7, max_length=35,required=False)
     
     quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 我们班的美女?'}),required=True)
     quest2  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     quest3  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲?'}),required=True)
+    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲'}),required=True)
     answer2 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     answer3 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     def clean_classnum(self):
@@ -119,7 +119,7 @@ class StudentForm(forms.Form):
     phone       = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'4~12个数字'}),min_length=4, max_length=12,required=False)
     birthday    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=False)
     position    = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'点我选择','readonly':'readonly','style':'background-color:white'}),required=True)
-    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'微信OpenID, 关注大学同窗并发送消息即可获得(有秘密功能哦)'}),min_length=7, max_length=35,required=False)
+    weixin      = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'OpenID不是微信号, 是一串杂七杂八的字符'}),min_length=7, max_length=35,required=False)
         
     def __init__(self, *args, **kwargs):
         self.classid = kwargs.pop('classid')
@@ -174,7 +174,7 @@ class ClassForm(forms.Form):
     quest1  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 我们班的美女?'}),required=True)
     quest2  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     quest3  = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
-    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲?'}),required=True)
+    answer1 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12','placeholder':u'示例: 小龙女|黄蓉|林志玲'}),required=True)
     answer2 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
     answer3 = forms.CharField(widget=forms.TextInput(attrs={'class':'span12'}),required=True)
   

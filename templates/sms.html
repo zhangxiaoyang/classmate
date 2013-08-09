@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block page %}
+<!-- Input
+================================================== -->
+<div class="row-fluid">
+    <div class="span2"></div>
+    <div class="span8 text-center">
+        <img src="http://bcs.duapp.com/mediaavatar/tongchuang2excel.png"> 
+        <br/>
+        <a href="http://bcs.duapp.com/mediaavatar/SMSAnalyzer-13.0721.1.zip">点我下载(当前版本13.0721.1, 需要.Net支持)</a>
+    </div>
+    <div class="span2"></div>
+</div>
+<hr class="soften">
+<div class="row-fluid">
+    <div class="row-fluid">
+        <div class="span1"></div>
+        <div class="span10 text-center">
+          <strong>安卓教程:</strong><br/>
+          Step1:手机端打开迷你飞信,设置->备份与恢复->备份系统短信。<br/>
+          tep2:将手机端生成的文件备份文件(xml文件)复制到电脑端。<br/>
+          Step3:电脑端打开SMSAnalyzer,并将备份文件拖拽到程序中,选择导出即可。<br/>
+          Step4:程序会生成一个csv文件,Excel可以打开,对你的短信进行各种分析吧!<br/><br/>
+
+          <strong>塞班教程:</strong><br/>
+          Step1:下载一款叫做SMSDiary的软件，将短信导出。<br/>
+          Step2:将手机端生成的文件备份文件(html文件)复制到电脑端。<br/>
+          Step3:电脑端打开SMSAnalyzer,并将备份文件拖拽到程序中,选择导出即可。<br/>
+          Step4:程序会生成一个csv文件,Excel可以打开,对你的短信进行各种分析吧!<br/>
+        </div>
+        <div class="span1"></div>
+    </div>
+</div> 
+{% endblock %}
