@@ -16,4 +16,9 @@ classmate
 
 该程序意在解决以上问题.
 
-目前, 已经在BAE测试运行: http://tongchuang.duapp.com
+<del>目前, 已经在BAE测试运行: http://tongchuang.duapp.com</del>
+
+已迁移至SAE： <http://lbscontacts.sinaapp.com>
+
+SAE代码：<https://github.com/zhangxiaoyang/classmate-sae>
+
